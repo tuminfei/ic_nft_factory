@@ -42,6 +42,16 @@ type DefiniteCanisterSettings = record {
   compute_allocation : nat;
 };
 type MaintainingReason = record { created : nat64; message : text };
+type RejectionCode = variant {
+  NoError;
+  CanisterError;
+  SysTransient;
+  DestinationInvalid;
+  Unknown;
+  SysFatal;
+  CanisterReject;
+};
+type Result = variant { Ok; Err : record { RejectionCode; text } };
 type WalletReceiveResult = record { accepted : nat64 };
 service : () -> {
   __get_candid_interface_tmp_hack : () -> (text) query;
@@ -49,6 +59,8 @@ service : () -> {
   create_icrc7_collection : (CreateArg) -> (principal);
   factory_canister_info : (nat64) -> (opt CanisterData) query;
   factory_canister_list : () -> (vec CanisterData) query;
+  factory_canister_set_admin : (principal, principal) -> (principal);
+  factory_canister_set_cyclse : (principal) -> (Result);
   maintainable_is_maintaining : () -> (bool) query;
   maintainable_set_maintaining : (opt MaintainingReason) -> ();
   permission_get_admins : () -> (vec principal) query;
@@ -58,7 +70,6 @@ service : () -> {
   schedule_start : (nat64) -> ();
   schedule_stop : () -> ();
   schedule_trigger : () -> ();
-  set_icrc7_admin : (principal, principal) -> (principal);
   wallet_balance : () -> (nat) query;
   wallet_receive : () -> (WalletReceiveResult);
   whoami : () -> (principal) query;
